@@ -1,0 +1,67 @@
+### How to Download and Run
+1. clone from git
+2. "$make" to compile the code
+3. "$./webserver <port no.(2001~49999)> <no. of threads> <crash percentage>" to run in command line.
+	Type crash percentage as a whole number eg. 25=25% crash rate.
+4. create a new terminal window instance in the working directory
+5. "$./client <host> <port no.> <no. of threads> <page>"
+	host: IP or hostname, ex. 127.0.0.1
+	port no.: must be the same port used to open the webserver
+	page: the page to retrieve, ex. index.html
+
+
+Structure and IPC
+##############################
+
+First, I created a listener thread seperate from the main thread. This thread is solely running the req_handler() function.
+I tested to make sure this was indeed a thread seperate from the main thread by printing the result of pthread_self() in both threads.
+
+Second, I looped numThread times to create numThread worker threads. I tested if they were all correct using the same method as above.
+
+Third, I employed the simple "producer consumer problem" solution discussed in the lecture slides. The listener thread is the producer, and the worker threads are the consumers.
+I tested this just by running the program over and over again with many different numbers of threads and clients.
+Also, I cross checked with producer consumer solutions online just to be extra sure.
+There are no race conditions or deadlocks, because i pulled the concurrency structure straight from the professor's lecture slides about the producer consumer problem.
+
+Producer {
+
+	 while(1){
+	 
+		//receive requests
+
+	 	wait(empty);
+	 	wait(mutex);
+
+	 	//put the requests file descriptors in the shared data structure (int request[MAX_REQUEST])
+
+	 	signal(mutex);
+	 	signal(full);
+
+	} // while
+
+} // Producer
+
+Consumer {
+
+	 while(1){
+
+		wait(full);
+		wait(mutex);
+
+		//pull request file descriptor from the shared buffer (request[])
+
+		signal(mutex);
+		signal(empty);
+
+		//process the request
+
+	 } // while
+
+} // Consumer
+
+
+Crash Handling
+##############################
+
+using pthread_tryjoin_np(), you check the exit status of the threads in order to tell if one of the worker threads have terminated.
+If so, then just simply call pthread_create() to replace the crashed worker thread.
