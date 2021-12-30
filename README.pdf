@@ -1,3 +1,7 @@
+**Disclaimer**: All of hte networking code present in this project was given at the start of the project. It is not my code/property.
+	The learning outomes of the project were about multi-threading and multi-proccess computation and comunication, IPC.
+
+
 ### How to Download and Run
 1. clone from git
 2. "$make" to compile the code
